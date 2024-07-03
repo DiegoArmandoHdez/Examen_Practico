@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use App\Http\Requests\StoreTaskApiRequest;
 
 use App\Models\Company;
@@ -19,12 +20,6 @@ class TaskController extends Controller
      *  solo si el usuario no ha superado el limite de 5 tareas registradas
      */
     public function create(StoreTaskApiRequest $request){
-        /* $request->validate([
-            "company_id"=> ["required", "numeric"],
-            "user_id"=> ["required", "numeric"],
-            "name"=> ["required", "string"],
-            "description"=> ["required", "string"],
-        ]); */
         //Buscar a la compañia indicada
         $company = Company::find($request->all()["company_id"]);
         if(!isset($company)){
@@ -45,7 +40,38 @@ class TaskController extends Controller
             return response()->json([
                 "message" => "El usuario ha excedido el limite de 5 tareas registradas"
             ]);
+        }
+        $expiredAt = isset($request->all()["expired_at"])
+            ? Carbon::parse($request->all()["expired_at"])
+            : null;
+        $startAt = isset($request->all()["start_at"])
+            ? Carbon::parse($request->all()["start_at"])
+            : null;
+        //dd($request->all());
+        /**
+         * Si cualquiera de las dos fechas es null,
+         * considerar a las fechas como validadas
+         */
 
+        /**
+         * Por defecto, si la fecha de expiración es
+         * nula, se puede aplicar la fecha de inicio
+         */
+        //$start_atValidated = !isset($expired_at);
+        /**
+         * Validar que la fecha de inicio siempre es antes que la de expiración,
+         * siempre y cuando se hayan definido ambas fechas
+         */
+        if((isset($expiredAt) && isset($startAt)) && $startAt->isAfter($expiredAt)){
+            return response()->json([
+                "message" => "La fecha de inicio no puede ser después a la fecha de expiración"
+            ]);
+        }
+        if((isset($expiredAt) && !isset($startAt)) &&
+            Carbon::now()->isAfter($expiredAt) ){
+            return response()->json([
+                "message" => "La fecha de expiración debe ser después de hoy si no se indica una fecha de inicio"
+            ]);
         }
         //Guardar datos de la tarea
         $task = Task::create($request->all());

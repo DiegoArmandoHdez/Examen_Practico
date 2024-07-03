@@ -13,7 +13,9 @@ class Task extends Model
         "company_id",
         "name",
         "description",
-        "user_id"
+        "user_id",
+        "expired_at",
+        "start_at",
     ];
 
     public function user(){

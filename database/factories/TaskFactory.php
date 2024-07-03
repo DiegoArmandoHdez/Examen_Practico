@@ -20,7 +20,7 @@ class TaskFactory extends Factory
 
         return [
             //
-            "name" => $this->faker->title(),
+            "name" => $this->faker->sentence(),
             "description" => $this->faker->paragraph(),
             "user_id" => User::all()->random()->id,
             "is_completed" => rand(0,1),

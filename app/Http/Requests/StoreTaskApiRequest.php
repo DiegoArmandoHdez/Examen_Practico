@@ -26,6 +26,8 @@ class StoreTaskApiRequest extends FormRequest
             "user_id"=> ["required", "numeric"],
             "name"=> ["required", "string"],
             "description"=> ["required", "string"],
+            "start_at"=> ["date", "nullable"],
+            "expired_at"=> ["date", "nullable"],
         ];
     }
 
