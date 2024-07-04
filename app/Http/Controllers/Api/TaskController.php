@@ -47,17 +47,6 @@ class TaskController extends Controller
         $startAt = isset($request->all()["start_at"])
             ? Carbon::parse($request->all()["start_at"])
             : null;
-        //dd($request->all());
-        /**
-         * Si cualquiera de las dos fechas es null,
-         * considerar a las fechas como validadas
-         */
-
-        /**
-         * Por defecto, si la fecha de expiración es
-         * nula, se puede aplicar la fecha de inicio
-         */
-        //$start_atValidated = !isset($expired_at);
         /**
          * Validar que la fecha de inicio siempre es antes que la de expiración,
          * siempre y cuando se hayan definido ambas fechas
@@ -67,6 +56,11 @@ class TaskController extends Controller
                 "message" => "La fecha de inicio no puede ser después a la fecha de expiración"
             ]);
         }
+        /**
+         * Si la fecha de expiración está definida pero no la
+         * fecha de inicio, entonces la fecha de expiración debe
+         * ser después a la fecha actual
+         */
         if((isset($expiredAt) && !isset($startAt)) &&
             Carbon::now()->isAfter($expiredAt) ){
             return response()->json([

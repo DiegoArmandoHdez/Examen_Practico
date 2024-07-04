@@ -9,16 +9,39 @@ use App\Models\Company;
 
 class CompanyController extends Controller
 {
-    //
 
+    /**
+     * Obtiene las compañias de la base de datos
+     * si no es especifica un id.
+     * Si se recibe un id por una petición get, se
+     * buscará una unica compañía basado en el id
+     */
     public function companies(){
 
         if(isset($_GET["id"])){
-            return new CompanyResource(Company::with(["tasks", "tasks.user"])->where("id", $_GET["id"])->first());
+            $company = Company::with(["tasks", "tasks.user"])->where("id", $_GET["id"])->first();
+            //Devolver mensaje de error si la compañía no existe
+            if(!isset($company)){
+                return response()->json([
+                    'message' => "La compañia solicitada no existe"
+                ]);
+            }
+            //Retorno de la compañia encontrada
+            return new CompanyResource($company);
         }
-
+        /**
+         * Buscamos todas las compañías de la base de datos
+         * junto a su relación con usuarios y tareas
+         */
+        $companies = Company::with(["tasks", "tasks.user"])->get();
+        //Retorno de todas las compañías encontradas
+        if(sizeof($companies) <= 0){
+            return response()->json([
+                'message' => "No se ha encontrado ninguna compañia"
+            ]);
+        }
         return CompanyResource::collection(
-            Company::with(["tasks", "tasks.user"])->get()
+            $companies
         );
     }
 }
